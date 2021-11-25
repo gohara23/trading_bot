@@ -8,6 +8,8 @@ def is_market_open(market="IEXG", extended=True):
     returns bool
     """
     market_hours = rh.get_market_today_hours(market)
+    if market_hours["opens_at"] is None:
+        return False
     now = dt.datetime.utcnow()
     if extended:
         open = market_hours['extended_opens_at']
