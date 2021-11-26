@@ -8,9 +8,10 @@ import helpers
 
 class Database:
 
-    def __init__(self, db_path):
+    def __init__(self, db_path, logger):
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
+        self.logger = logger
 
     def create_table(self, table_name, cols, types):
         """
@@ -273,6 +274,8 @@ class CryptoTickData:
                     except:
                         # Add logging!!
                         continue
+
+
 
 
 
