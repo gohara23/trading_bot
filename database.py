@@ -161,146 +161,146 @@ class CryptoTickData:
         for ticker in self.tickers:
             self.append_tick_data(ticker)
 
-    class OptionTickData:
-        def __init__(self, database, tickers, logger):
-            self.table_name = "options_tick_data"
-            self.tickers = tickers
-            self.database = database
-            self.cols = [
-                "utc_datetime",
-                'adjusted_mark_price',
-                'ask_price',
-                'ask_size',
-                'bid_price',
-                'bid_size',
-                'break_even_price',
-                'chain_id',
-                'chain_symbol',
-                'chance_of_profit_long',
-                'chance_of_profit_short',
-                'created_at',
-                'delta',
-                'expiration_date',
-                'gamma',
-                'high_fill_rate_buy_price',
-                'high_fill_rate_sell_price',
-                'high_price',
-                'implied_volatility',
-                'issue_date',
-                'last_trade_price',
-                'last_trade_size',
-                'low_fill_rate_buy_price',
-                'low_fill_rate_sell_price',
-                'low_price',
-                'mark_price',
-                'occ_symbol',
-                'open_interest',
-                'previous_close_date',
-                'previous_close_price',
-                'rho',
-                'rhs_tradability',
-                'sellout_datetime',
-                'short_strategy_code',
-                'state',
-                'strike_price',
-                'symbol',
-                'theta',
-                'tradability',
-                'type',
-                'updated_at',
-                'vega',
-                'volume'
-            ]
-            self.types = [
-                "text",
-                "real",
-                "real",
-                "real",
-                "real",
-                "real",
-                "real",
-                "text",
-                "text",
-                "real",
-                "real",
-                "text",
-                "real",
-                "text",
-                "real",
-                "real",
-                "real",
-                "real",
-                "real",
-                "text",
-                "real",
-                "real",
-                "real",
-                "real",
-                "real",
-                "real",
-                "text",
-                "real",
-                "text",
-                "real",
-                "real",
-                "text",
-                "text",
-                "text",
-                "text",
-                "real",
-                "text",
-                "real",
-                "text",
-                "text",
-                "text",
-                "real",
-                "real",
-            ]
+class OptionTickData:
+    def __init__(self, database, tickers, logger):
+        self.table_name = "options_tick_data"
+        self.tickers = tickers
+        self.database = database
+        self.cols = [
+            "utc_datetime",
+            'adjusted_mark_price',
+            'ask_price',
+            'ask_size',
+            'bid_price',
+            'bid_size',
+            'break_even_price',
+            'chain_id',
+            'chain_symbol',
+            'chance_of_profit_long',
+            'chance_of_profit_short',
+            'created_at',
+            'delta',
+            'expiration_date',
+            'gamma',
+            'high_fill_rate_buy_price',
+            'high_fill_rate_sell_price',
+            'high_price',
+            'implied_volatility',
+            'issue_date',
+            'last_trade_price',
+            'last_trade_size',
+            'low_fill_rate_buy_price',
+            'low_fill_rate_sell_price',
+            'low_price',
+            'mark_price',
+            'occ_symbol',
+            'open_interest',
+            'previous_close_date',
+            'previous_close_price',
+            'rho',
+            'rhs_tradability',
+            'sellout_datetime',
+            'short_strategy_code',
+            'state',
+            'strike_price',
+            'symbol',
+            'theta',
+            'tradability',
+            'type',
+            'updated_at',
+            'vega',
+            'volume'
+        ]
+        self.types = [
+            "text",
+            "real",
+            "real",
+            "real",
+            "real",
+            "real",
+            "real",
+            "text",
+            "text",
+            "real",
+            "real",
+            "text",
+            "real",
+            "text",
+            "real",
+            "real",
+            "real",
+            "real",
+            "real",
+            "text",
+            "real",
+            "real",
+            "real",
+            "real",
+            "real",
+            "real",
+            "text",
+            "real",
+            "text",
+            "real",
+            "real",
+            "text",
+            "text",
+            "text",
+            "text",
+            "real",
+            "text",
+            "real",
+            "text",
+            "text",
+            "text",
+            "real",
+            "real",
+        ]
 
-            self.database.create_table(self.table_name, self.cols, self.types)
-            self.logger = logger
+        self.database.create_table(self.table_name, self.cols, self.types)
+        self.logger = logger
 
-        def add_ticker(self, ticker):
-            self.tickers.append(ticker)
+    def add_ticker(self, ticker):
+        self.tickers.append(ticker)
 
-        def append_tick_data(self, ticker, expiration):
+    def append_tick_data(self, ticker, expiration):
+        try:
+            data = rh.find_options_by_expiration(ticker, expiration)
+        except:
+            self.logger.critical(
+                "COULD NOT GET OPTION DATA, TICKER SKIPPED")
+            return
+        final_dict = {}
+        final_dict["utc_datetime"] = f"{dt.datetime.utcnow()}"
+        for ix in range(1, len(self.cols)):
+            if self.types[ix] == "text":
+                final_dict[self.cols[ix]] = f"{data[self.cols[ix]]}"
+            elif self.types[ix] == "real":
+                final_dict[self.cols[ix]] = float(data[self.cols[ix]])
+            else:
+                final_dict[self.cols[ix]] = data[self.cols[ix]]
+
+        self.database.append_table(self.table_name, final_dict)
+
+    def append_all(self, check_market_hours=True):
+        if check_market_hours:
+            if not helpers.is_market_open(extended=False):
+                return
+
+        for ticker in self.tickers:
             try:
-                data = rh.find_options_by_expiration(ticker, expiration)
+                expiris = helpers.get_option_expiration_dates(ticker)
             except:
                 self.logger.critical(
-                    "COULD NOT GET OPTION DATA, TICKER SKIPPED")
-                return
-            final_dict = {}
-            final_dict["utc_datetime"] = f"{dt.datetime.utcnow()}"
-            for ix in range(1, len(self.cols)):
-                if self.types[ix] == "text":
-                    final_dict[self.cols[ix]] = f"{data[self.cols[ix]]}"
-                elif self.types[ix] == "real":
-                    final_dict[self.cols[ix]] = float(data[self.cols[ix]])
-                else:
-                    final_dict[self.cols[ix]] = data[self.cols[ix]]
-
-            self.database.append_table(self.table_name, final_dict)
-
-        def append_all(self, check_market_hours=True):
-            if check_market_hours:
-                if not helpers.is_market_open(extended=False):
-                    return
-
-            for ticker in self.tickers:
+                    "COULD NOT FIND EXPIRIS, TICKER SKIPPED")
+                continue
+            for expiri in expiris:
                 try:
-                    expiris = helpers.get_option_expiration_dates(ticker)
+                    self.append_tick_data(ticker, expiri)
                 except:
                     self.logger.critical(
-                        "COULD NOT FIND EXPIRIS, TICKER SKIPPED")
+                        "COULD NOT FIND OPTION DATA TICKER/EXPIRI SKIPPED")
                     continue
-                for expiri in expiris:
-                    try:
-                        self.append_tick_data(ticker, expiri)
-                    except:
-                        self.logger.critical(
-                            "COULD NOT FIND OPTION DATA TICKER/EXPIRI SKIPPED")
-                        continue
 
 
 class AccountTickData:
