@@ -4,7 +4,7 @@ import numpy as np
 import time
 import json
 
-def is_market_open(market="IEXG", extended=True):
+def is_market_open(market="XNAS", extended=True):
     """
     returns bool
     """
@@ -38,6 +38,11 @@ def login(creds_filename):
     content = open(creds_filename).read()
     config = json.loads(content)
     rh.login(config["username"], config["password"])
+
+def get_option_expiration_dates(ticker):
+    chains = rh.get_chains(ticker)
+    expiration_dates = chains['expiration_dates']
+    return expiration_dates
 
 
 

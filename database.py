@@ -42,7 +42,9 @@ class Database:
 
         num_cols = self.get_num_cols(table_name)
         if len(row) != num_cols:
-            raise ValueError("num input args does not match num cols")
+            # raise ValueError("num input args does not match num cols")
+            self.logger.critical(f"COULD NOT APPEND {table_name}, INPUT ARGS != NUM COLS")
+            return
         if type(row) is not dict:
             raise TypeError(
                 f"Expected type of dict for arg row, but received {type(row)}")
@@ -108,6 +110,7 @@ class StockTickData:
         db_input["last_trade_price"] = float(quote["last_trade_price"])
         db_input["previous_close"] = float(quote["previous_close"])
         db_input["previous_close_date"] = quote["previous_close_date"]
+        db_input["updated_at"] = quote["updated_at"]
         db_input["pct_change_from_prev_close"] = (
             db_input["last_trade_price"]-db_input["previous_close"])/db_input["previous_close"]
 
@@ -157,7 +160,7 @@ class CryptoTickData:
         db_input["high_price"] = float(quote["high_price"])
         db_input["low_price"] = float(quote["low_price"])
         db_input["open_price"] = float(quote["open_price"])
-        
+
         self.database.append_table(self.table_name, db_input)
         
 
@@ -305,6 +308,8 @@ class OptionTickData:
                     self.logger.critical(
                         "COULD NOT FIND OPTION DATA TICKER/EXPIRI SKIPPED")
                     continue
+        
+        
 
 
 class AccountTickData:
@@ -353,17 +358,21 @@ class AccountTickData:
             equities = rh.build_holdings()
         except:
             self.logger.critical("COULD NOT PULL ACCOUNT INFO")
-            return 
+            return
         data = {}
         data["utc_datetime"] = f"{dt.datetime.utcnow()}"
         data["equity_previous_close"] = float(
             portfolio_profile["equity_previous_close"])
         data["equity"] = float(portfolio_profile["equity"])
-        data["extended_hours_equity"] = float(
-            portfolio_profile["extended_hours_equity"])
         data["market_value"] = float(portfolio_profile["market_value"])
-        data["extended_hours_market_value"] = float(
-            portfolio_profile["extended_hours_market_value"])
+        try:
+            data["extended_hours_equity"] = float(
+                portfolio_profile["extended_hours_equity"])
+            data["extended_hours_market_value"] = float(
+                portfolio_profile["extended_hours_market_value"])
+        except:
+            data["extended_hours_equity"] = data["equity"]
+            data["extended_hours_market_value"] = data["market_value"]
         data["withdrawable_amount"] = float(
             portfolio_profile["withdrawable_amount"])
 
@@ -375,6 +384,9 @@ class AccountTickData:
         except:
             data['options'] = 'ERR'
             self.logger.critical("FAILED TO PULL OPTION DATA")
+        self.database.append_table(self.table_name, data)
+        
+        
 
 
 
@@ -390,13 +402,13 @@ class AccountTickData:
             if float(ticker["cost_bases"][0]["direct_quantity"]) > 0:
                 temp = {}
                 temp["ticker"] = ticker["currency"]["code"]
-                temp['quantity'] = float(ticker["cost_bases"]["direct_quantity"])
-                temp['cost_basis'] = float(ticker["cost_bases"]["direct_cost_basis"])
+                temp['quantity'] = float(ticker["cost_bases"][0]["direct_quantity"])
+                temp['cost_basis'] = float(ticker["cost_bases"][0]["direct_cost_basis"])
                 temp['mark_price'] = float(rh.get_crypto_quote(temp["ticker"])['mark_price'])
                 temp['equity'] = temp['mark_price']*temp['quantity']
                 temp['profit_loss'] = temp['equity'] - temp['cost_basis']
                 temp['pct_pl'] = temp['profit_loss'] / temp['cost_basis']
-            data.append(temp)
+                data.append(temp)
         return data
 
 
