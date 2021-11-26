@@ -2,6 +2,7 @@ from robin_stocks import robinhood as rh
 import datetime as dt
 import numpy as np
 import time
+import json
 
 def is_market_open(market="IEXG", extended=True):
     """
@@ -31,6 +32,12 @@ def random_delay(min_time, max_time):
         """delays a random amount of time
         etween the min and max time in s."""
         time.sleep(np.random.randint(min_time, max_time))
+
+def login(creds_filename):
+    # may need 2fa code entered throgh CLI
+    content = open(creds_filename).read()
+    config = json.loads(content)
+    rh.login(config["username"], config["password"])
 
 
 
