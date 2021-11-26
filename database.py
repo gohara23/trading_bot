@@ -282,7 +282,11 @@ class CryptoTickData:
 
             self.database.append_table(self.table_name, final_dict)
 
-        def append_all(self):
+        def append_all(self, check_market_hours=True):
+            if check_market_hours:
+                if not helpers.is_market_open(extended=False):
+                    return
+
             for ticker in self.tickers:
                 try:
                     expiris = helpers.get_option_expiration_dates(ticker)
