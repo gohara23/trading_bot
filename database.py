@@ -24,8 +24,9 @@ class Database:
         """
         if len(cols) != len(types):
             # raise ValueError("number of columns must equal number of types")
+            
             self.logger.critical(
-                "TABLE NOT CREATED - VALUE ERROR: NUM COLS MUST EQUAL NUM TYPES")
+                f"TABLE {table_name} NOT CREATED - VALUE ERROR: NUM COLS MUST EQUAL NUM TYPES")
 
         command = f"CREATE TABLE IF NOT EXISTS {table_name} ("
 
@@ -156,6 +157,9 @@ class CryptoTickData:
         db_input["high_price"] = float(quote["high_price"])
         db_input["low_price"] = float(quote["low_price"])
         db_input["open_price"] = float(quote["open_price"])
+        
+        self.database.append_table(self.table_name, db_input)
+        
 
     def append_all_tickers(self):
         for ticker in self.tickers:
@@ -328,7 +332,7 @@ class AccountTickData:
             'market_value',
             'extended_hours_market_value',
             'buying_power',
-            'withdrawable_amount'
+            'withdrawable_amount',
             'equities',
             'crypto',
             'options'
