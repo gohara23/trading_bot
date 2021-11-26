@@ -7,6 +7,7 @@ class Globals():
         self.DB_PATH = "database.db"
         self.DATA_COLLECT_STOCKS = ["TSLA", "AMD", "HUT", "AMC", "PLTR", "MARA", "GOEV", "RIOT", "BITO", "GME"]
         self.DATA_COLLECT_CRYPTO = ["BTC", "ETH", "DOGE"]
+        self.DATA_COLLECT_FREQUENCY = 300 # seconds
         # self.DB_PATH = os.getcwd()+"/db/"
 
 
