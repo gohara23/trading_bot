@@ -33,7 +33,7 @@ def random_delay(min_time, max_time):
         etween the min and max time in s."""
         time.sleep(np.random.randint(min_time, max_time))
 
-def login(creds_filename):
+def login(creds_filename="config.json"):
     # may need 2fa code entered throgh CLI
     content = open(creds_filename).read()
     config = json.loads(content)
