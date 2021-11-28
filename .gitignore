@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# Sensitive Data
+config.json
+
+# database 
+*.db
