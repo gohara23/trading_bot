@@ -242,7 +242,6 @@ class OptionTickData:
 
 def options_collection_main():
     settings = globals.Globals()
-    helpers.login(settings.CREDS_PATH)
     log = logger.Logger().logger
 
     db = database.Database(settings.DB_PATH, log)
