@@ -1,13 +1,13 @@
 import helpers
 import datetime as dt
 import database 
-import globals
+from globals import *
 import helpers 
 import logger
 from wallstreet import Stock
 
 
-class StockTickDataWallstreet:
+class StockTickData:
 
     def __init__(self, database, tickers, logger):
         self.database = database
@@ -40,20 +40,22 @@ class StockTickDataWallstreet:
 
         self.database.append_table(self.table_name, db_input)
 
-    def append_all_tickers(self):
+    def append_all_tickers(self, check_market_hours=True, extended_hours=False):
+        if check_market_hours:
+            if not helpers.is_market_open(extended=extended_hours):
+                return
         for ticker in self.tickers:
             self.append_tick_data(ticker)
 
 def stock_tick_main():
-    settings = globals.Globals()
     log = logger.Logger().logger
 
-    db = database.Database(settings.DB_PATH, log)
-    stocks_db = StockTickDataWallstreet(db, settings.DATA_COLLECT_STOCKS, log)
+    db = database.Database(DB_PATH, log)
+    stocks_db = StockTickData(db, DATA_COLLECT_STOCKS, log)
 
     while True:
-        stocks_db.append_all_tickers()
-        helpers.random_delay(settings.DATA_COLLECT_FREQUENCY - 50, settings.DATA_COLLECT_FREQUENCY+50)
+        stocks_db.append_all_tickers(CHECK_MARKET_HOURS, EXTENDED_HOURS_STOCKS)
+        helpers.random_delay(DATA_COLLECT_FREQUENCY - 50, DATA_COLLECT_FREQUENCY+50)
 
 if __name__ == "__main__":
 
