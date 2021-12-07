@@ -1,7 +1,4 @@
-from robin_stocks import robinhood as rh
 import sqlite3
-import datetime as dt
-import helpers
 
 class Database:
 
@@ -66,14 +63,4 @@ class Database:
         return num_cols
            
 
-# if __name__ == "__main__":
 
-#     db = Database("test.db")
-#     name = "func_test"
-#     cols = ["datetime", "ticker", "price"]
-#     types = ["text", "text", "real"]
-#     db.create_table(name, cols, types)
-#     db.get_num_cols(name)
-#     inputs = ["05-21-2021", "TSLA", 1110]
-#     inputs = {"datetime": "05-21-2021", "ticker": "TSLA", "price": 420}
-#     db.append_table(name, inputs)
