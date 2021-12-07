@@ -19,7 +19,7 @@ def is_market_open(market="XNAS", extended=True):
         close = dt.datetime.strptime(close, '%Y-%m-%dT%H:%M:%SZ')
     else:
         open = market_hours["opens_at"]
-        close = market_hours["opens_at"]
+        close = market_hours["closes_at"]
         open = dt.datetime.strptime(open, '%Y-%m-%dT%H:%M:%SZ')
         close = dt.datetime.strptime(close, '%Y-%m-%dT%H:%M:%SZ')
     
