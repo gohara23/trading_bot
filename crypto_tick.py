@@ -1,7 +1,7 @@
 import helpers
 import datetime as dt
 import database
-import globals
+from globals import *
 import helpers
 import logger
 from robin_stocks import robinhood as rh
@@ -51,17 +51,16 @@ class CryptoTickData:
 
 
 def crypto_tick_main():
-    settings = globals.Globals()
-    helpers.login(settings.CREDS_PATH)
+    helpers.login(CREDS_PATH)
     log = logger.Logger().logger
 
-    db = database.Database(settings.DB_PATH, log)
-    crypto_db = CryptoTickData(db, settings.DATA_COLLECT_CRYPTO, log)
+    db = database.Database(DB_PATH, log)
+    crypto_db = CryptoTickData(db, DATA_COLLECT_CRYPTO, log)
 
     while True:
         crypto_db.append_all_tickers()
-        helpers.random_delay(settings.DATA_COLLECT_FREQUENCY -
-                             50, settings.DATA_COLLECT_FREQUENCY+50)
+        helpers.random_delay(DATA_COLLECT_FREQUENCY -
+                             50, DATA_COLLECT_FREQUENCY+50)
 
 
 if __name__ == "__main__":
