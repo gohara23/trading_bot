@@ -1,7 +1,7 @@
 import helpers
 import datetime as dt
 import database 
-import globals
+from globals import *
 import helpers 
 import logger
 from robin_stocks import robinhood as rh
@@ -110,15 +110,15 @@ class AccountTickData:
 
 def portfolio_tick_main():
     settings = globals.Globals()
-    helpers.login(settings.CREDS_PATH)
+    helpers.login(CREDS_PATH)
     log = logger.Logger().logger
 
-    db = database.Database(settings.DB_PATH, log)
+    db = database.Database(DB_PATH, log)
     portfolio_db = AccountTickData(db, log)
 
     while True:
-        portfolio_db.append_acc_data(settings.CHECK_MARKET_HOURS)
-        helpers.random_delay(settings.DATA_COLLECT_FREQUENCY - 50, settings.DATA_COLLECT_FREQUENCY+50)
+        portfolio_db.append_acc_data(CHECK_MARKET_HOURS)
+        helpers.random_delay(DATA_COLLECT_FREQUENCY - 50, DATA_COLLECT_FREQUENCY+50)
 
 
 if __name__ == "__main__":
