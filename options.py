@@ -9,7 +9,7 @@ from scipy.optimize import fsolve
 
 import datetime as dt
 import database 
-import globals
+from globals import *
 import helpers 
 import logger
 
@@ -177,7 +177,6 @@ class OptionTickData:
             'real',
             'real'
         ]
-        self.settings = globals.Globals()
         self.database.create_table(self.table_name, self.cols, self.types)
         self.logger = logger
 
@@ -185,7 +184,7 @@ class OptionTickData:
         self.tickers.append(ticker)
 
     def append_tick_data(self, ticker, expiration):
-        date_obj = dt.datetime.strptime(expiration, self.settings.DATE_FORMAT)
+        date_obj = dt.datetime.strptime(expiration, DATE_FORMAT)
         for type in ["Call", "Put"]:
             if type == "Call":
                 chain = Call(ticker, date_obj.day,
@@ -196,7 +195,7 @@ class OptionTickData:
             S = chain.underlying.price
             expiri_obj = dt.datetime.strptime(chain.expiration, '%d-%m-%Y')
             T = yrs_until_date_expiri(expiri_obj)
-            expiri_str = dt.datetime.strftime(expiri_obj, self.settings.DATE_FORMAT)
+            expiri_str = dt.datetime.strftime(expiri_obj, DATE_FORMAT)
 
             for option in chain.data:
                 del option["contractSize"]
@@ -220,7 +219,7 @@ class OptionTickData:
 
     def append_all(self, check_market_hours=True):
         if check_market_hours:
-            if not helpers.is_market_open(extended=True):
+            if not helpers.is_market_open(extended=False):
                 return
 
         for ticker in self.tickers:
@@ -241,15 +240,14 @@ class OptionTickData:
 
 
 def options_collection_main():
-    settings = globals.Globals()
     log = logger.Logger().logger
 
-    db = database.Database(settings.DB_PATH, log)
-    options_db = OptionTickData(db, settings.DATA_COLLECT_STOCKS, log)
+    db = database.Database(DB_PATH, log)
+    options_db = OptionTickData(db, DATA_COLLECT_STOCKS, log)
 
     while True:
-        options_db.append_all(settings.CHECK_MARKET_HOURS)
-        helpers.random_delay(settings.DATA_COLLECT_FREQUENCY - 50, settings.DATA_COLLECT_FREQUENCY+50)
+        options_db.append_all(CHECK_MARKET_HOURS)
+        helpers.random_delay(DATA_COLLECT_FREQUENCY - 50, DATA_COLLECT_FREQUENCY+50)
 
 
 if __name__ == "__main__":
