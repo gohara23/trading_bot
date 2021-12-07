@@ -1,7 +1,7 @@
 import helpers
 import datetime as dt
 import database
-import globals
+from globals import *
 import helpers
 import logger
 from wallstreet import Stock
@@ -11,7 +11,7 @@ class CryptoTick:
 
     def __init__(self, database, tickers, logger):
         self.database = database
-        self.table_name = "crypto"
+        self.table_name = CRYPTO_TABLE
         self.cols = [
             "utc_datetime", "symbol", "last_price", "last_trade_date"
         ]
@@ -45,16 +45,15 @@ class CryptoTick:
 
 
 def crypto_main():
-    settings = globals.Globals()
     log = logger.Logger().logger
 
-    db = database.Database(settings.DB_PATH, log)
-    stocks_db = CryptoTick(db, settings.CRYPTO_PAIRS, log)
+    db = database.Database(DB_PATH, log)
+    stocks_db = CryptoTick(db, CRYPTO_PAIRS, log)
 
     while True:
         stocks_db.append_all_tickers()
-        helpers.random_delay(settings.DATA_COLLECT_FREQUENCY -
-                             50, settings.DATA_COLLECT_FREQUENCY+50)
+        helpers.random_delay(DATA_COLLECT_FREQUENCY -
+                             50, DATA_COLLECT_FREQUENCY+50)
 
 
 if __name__ == "__main__":
